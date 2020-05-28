@@ -1,7 +1,11 @@
 import imageio
+import os
+from threading import Thread
 from tkinter import *
 from tkinter import filedialog, messagebox
 from PIL import ImageTk, Image
+
+from Cutter import cuttoff_clip, ffmpeg_extract_subclip, NO_OP_FOLDER
 
 video = None
 master = Tk()
@@ -9,7 +13,7 @@ frame_samples = [0] * 2
 
 
 def display_video(frame):
-    global video, video_label
+    global video_label, video
 
     if not video:
         return
@@ -26,7 +30,7 @@ def open_dialog():
 
     master.filename = filedialog.askopenfilename(title='Select a sample video')
 
-    if(not master.filename):
+    if (not master.filename):
         print('cancel')
         return
 
@@ -69,6 +73,21 @@ def get_last_sample():
     print(frame_samples)
 
 
+def cut_op():
+    global video
+
+    new_dir = os.path.join(os.path.dirname(master.filename), NO_OP_FOLDER)
+    if not os.path.isdir(new_dir):
+        os.mkdir(new_dir)
+
+    video_fps = int(video.get_meta_data()['fps'])
+
+    start_time = frame_samples[0] / video_fps
+    end_time = frame_samples[1] / video_fps
+
+    ffmpeg_extract_subclip(master.filename, start_time, end_time, 'test.mp4')
+
+
 if __name__ == '__main__':
     video_label = Label(master)
     video_label.pack()
@@ -84,4 +103,7 @@ if __name__ == '__main__':
     button_frame_sample_1 = Button(master, text="Second frame sample", command=get_last_sample,
                                    state=DISABLED)
     button_frame_sample_1.pack()
+
+    button_cut = Button(master, text="Cut", command=cut_op)
+    button_cut.pack()
     master.mainloop()

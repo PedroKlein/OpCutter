@@ -1,20 +1,32 @@
 import cv2
+import numpy as np
 
-# Opens the Video file
-cap = cv2.VideoCapture('D:/Series-filmes/Anime_Monster_legendado_ptbr/Monster_01.rmvb')
+def compare_with_sample(sample_path, video_path):
+    sample = cv2.VideoCapture(sample_path)
+    video = cv2.VideoCapture(video_path)
+    img = cv2.imread('frame20sec.jpg')
 
-frame_width = int(cap.get(3))
-frame_height = int(cap.get(4))
+    while sample.isOpened():
+        ret, frame = sample.read()
+        if not np.any(cv2.subtract(img, frame)):
+            print('OK')
+    # while video.isOpened():
+    #     ret, frame = video.read()
+    #     while sample.isOpened():
+    #         ret_sample, frame_sample = sample.read()
+    #         score, diff = compare_ssim(grayA, grayB, full=True)
+    #         diff = (diff * 255).astype("uint8")
+    #         print("SSIM: {}".format(score)
 
-out = cv2.VideoWriter('outpy.avi', cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), 10, (frame_width, frame_height))
-while cap.isOpened():
-    ret, frame = cap.read()
+    sample.release()
+    video.release()
 
-    if ret is True:
-        out.write(frame)
+compare_with_sample('test.mp4', 'test.mp4')
 
-
-cap.release()
-out.release()
-
-cv2.destroyAllWindows()
+# vidcap = cv2.VideoCapture('test.mp4')
+# vidcap.set(cv2.CAP_PROP_POS_MSEC,20000)      # just cue to 20 sec. position
+# success, image = vidcap.read()
+# if success:
+#     cv2.imwrite("frame20sec.jpg", image)     # save frame as JPEG file
+#     cv2.imshow("20sec",image)
+#     cv2.waitKey()
