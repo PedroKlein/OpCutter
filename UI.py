@@ -1,24 +1,23 @@
-import imageio
 import os
-from threading import Thread
+import Cutter
+from Video import Video
 from tkinter import *
 from tkinter import filedialog, messagebox
 from PIL import ImageTk, Image
 
-from Cutter import cuttoff_clip, ffmpeg_extract_subclip, NO_OP_FOLDER
 
 video = None
 master = Tk()
 frame_samples = [0] * 2
 
 
-def display_video(frame):
+def display_video(time):
     global video_label, video
 
     if not video:
         return
 
-    image = video.get_data(int(frame))
+    image = video.file.get_data(int(time * video.fps))
     frame_image = ImageTk.PhotoImage(Image.fromarray(image))
 
     video_label.config(image=frame_image)
@@ -30,21 +29,19 @@ def open_dialog():
 
     master.filename = filedialog.askopenfilename(title='Select a sample video')
 
-    if (not master.filename):
+    if not master.filename:
         print('cancel')
         return
 
-    video = imageio.get_reader(master.filename)
+    video = Video(master.filename)
 
-    video_duration = video.get_meta_data()['duration']
-    video_fps = video.get_meta_data()['fps']
-    total_frames = int(video_duration * video_fps)
+    frame_samples[1] = video.duration
 
     display_video(0)
 
     button_frame_sample_0.config(state=NORMAL)
     button_frame_sample_1.config(state=NORMAL)
-    slider.config(to=total_frames - 1, state=ACTIVE)
+    slider.config(to=video.duration, state=ACTIVE)
 
 
 def get_first_sample():
@@ -76,16 +73,7 @@ def get_last_sample():
 def cut_op():
     global video
 
-    new_dir = os.path.join(os.path.dirname(master.filename), NO_OP_FOLDER)
-    if not os.path.isdir(new_dir):
-        os.mkdir(new_dir)
-
-    video_fps = int(video.get_meta_data()['fps'])
-
-    start_time = frame_samples[0] / video_fps
-    end_time = frame_samples[1] / video_fps
-
-    ffmpeg_extract_subclip(master.filename, start_time, end_time, 'test.mp4')
+    Cutter.ffmpeg_extract_subclip(video.path, frame_samples[0], frame_samples[1], 'test.mp4')
 
 
 if __name__ == '__main__':
@@ -93,7 +81,7 @@ if __name__ == '__main__':
     video_label.pack()
 
     slider = Scale(master, from_=0, to=0, orient=HORIZONTAL, command=display_video,
-                   length=1000, showvalue=0, state=DISABLED)
+                   length=1000, showvalue=0, state=DISABLED, takefocus=1)
     slider.pack()
 
     button_file = Button(master, text="Choose sample", command=open_dialog).pack()
