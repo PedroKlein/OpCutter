@@ -13,6 +13,7 @@ class Video:
         self.new_path = os.path.join(os.path.dirname(path), NO_OP_FOLDER, self.name)
         self.file = imageio.get_reader(path)
 
+        self.first_op_frame = 0
         self.fps = self.file.get_meta_data()['fps']
         self.duration = self.file.get_meta_data()['duration']
 

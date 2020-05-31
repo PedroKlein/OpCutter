@@ -33,7 +33,9 @@ def confirm_op(op_video, target_video):
 
         for j in range(int(target_video.fps)):
             frame_sample = video_sample.read()[1]
-            score += hist_compare(frame_vid, frame_sample)
+            img_hist_diff = hist_compare(frame_vid, frame_sample)
+            if img_hist_diff >= MINIMUM_HIST_DIFF:
+                score += hist_compare(frame_vid, frame_sample)
             if score >= ENOUGH_SCORE:
                 print('Confirmed')
                 return True
@@ -42,7 +44,8 @@ def confirm_op(op_video, target_video):
     return False
 
 
-def seek_frame_in_video(frame_sample, video):
+def seek_frame_in_video(frame_sample, video, start_frame=0):
+    video.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
     while video.isOpened():
         frame_vid = video.read()[1]
         img_hist_diff = hist_compare(frame_vid, frame_sample)
@@ -53,6 +56,27 @@ def seek_frame_in_video(frame_sample, video):
         elif img_hist_diff == 0:
             print('End')
             return None
+
+
+def confirm_frame_in_video_backwards(target_video, start_frame=-1):
+
+    video = cv2.VideoCapture(target_video.path)
+    video.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
+    frame_sample = video.read()[1]
+
+    new_first_frame = start_frame
+
+    while video.isOpened():
+        video.set(cv2.CAP_PROP_POS_FRAMES, video.get(cv2.CAP_PROP_POS_FRAMES) - 2)
+        frame_vid = video.read()[1]
+
+        img_hist_diff = hist_compare(frame_vid, frame_sample)
+        if img_hist_diff >= MINIMUM_HIST_DIFF - 1000:
+            print('Found One')
+            new_first_frame = video.get(cv2.CAP_PROP_POS_FRAMES)
+        else:
+            print('End')
+            return new_first_frame
 
 
 def hist_compare(image1, image2):

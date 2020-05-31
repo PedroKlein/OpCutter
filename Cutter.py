@@ -46,7 +46,7 @@ def cuttoff_clip(video, t1, t2):
         ffmpeg_extract_subclip(video.path, t2, t2 - 1, targetname=video.new_path)
 
     ffmpeg_extract_subclip(video.path, 0, t1, targetname=temp1)
-    ffmpeg_extract_subclip(video.path, t2, t2 - 1, targetname=temp2)
+    ffmpeg_extract_subclip(video.path, t2, video.duration, targetname=temp2)
     ffmpeg_concatenate_subclips(temp1, temp2, video.new_path)
 
     os.remove(temp1)

@@ -1,5 +1,6 @@
 import os
 import Cutter
+import Core
 from Video import Video
 from tkinter import *
 from tkinter import filedialog, messagebox
