@@ -12,4 +12,4 @@ def test(op_video, target_video):
 
 
 
-nicole(Video('op.mp4'), Video('D:\Series-filmes\Westworld S2\Westworld.S02E10.MP4.LEG.BaixarSeriesMP4.Com.mp4'))
+test(Video('op.mp4'), Video('D:\Series-filmes\Westworld S2\Westworld.S02E10.MP4.LEG.BaixarSeriesMP4.Com.mp4'))
