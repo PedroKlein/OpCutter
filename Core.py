@@ -2,7 +2,7 @@ from Video import Video
 import Analyzer
 
 
-def nicole(op_video, target_video):
+def test(op_video, target_video):
     target_video.first_op_frame = Analyzer.seek_first_frame(op_video, target_video)
     if Analyzer.confirm_op(op_video, target_video):
         op_init_time_pos = target_video.first_op_frame/target_video.fps
